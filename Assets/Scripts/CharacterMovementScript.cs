@@ -27,7 +27,7 @@ public class CharacterMovementScript : MonoBehaviour
 
     public bool isReadyToJump = false;
 
-    public float jumpCooldown = 15f; // Zıplama cooldown süresi (saniye olarak)
+    public float jumpCooldown = 1f; // Zıplama cooldown süresi (saniye olarak)
     private float lastJumpTime; // Son zıplama zamanını sakla
 
     private bool isAscending = false;
@@ -46,6 +46,7 @@ public class CharacterMovementScript : MonoBehaviour
 
 
     public bool groundedLeft;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -102,9 +103,11 @@ public class CharacterMovementScript : MonoBehaviour
         Debug.Log(jumpInput);
         //isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
+        Debug.Log("rb velocity"+rb.velocity);
        groundedLeft = Physics2D.OverlapCircle(groundCheckLeft.position, groundCheckRadius, groundLayer);
        groundedRight = Physics2D.OverlapCircle(groundCheckRight.position, groundCheckRadius, groundLayer);
-        isGrounded = groundedLeft || groundedRight;
+        isGrounded= Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        //isGrounded = groundedLeft || groundedRight;
         if (moveInput == Vector2.zero || rb.velocity.magnitude < 0.01f)
         {
             animator.SetBool("isRunning", false);
@@ -138,7 +141,8 @@ public class CharacterMovementScript : MonoBehaviour
             animator.SetBool("isGrounded", false);
             animator.SetBool("jumpStarted", true);
         }
-        else if (isAscending && rb.velocity.y <= 0) // Zirveye ulaşıldı ve yön değişiyor
+
+         if (isAscending && rb.velocity.y <= 20) // Zirveye ulaşıldı ve yön değişiyor
         {
             Debug.Log("Zirveye ulaşıldı.");
             isAscending = false; // Yükseliş durumu sıfırlanır
@@ -149,7 +153,7 @@ public class CharacterMovementScript : MonoBehaviour
 
         if (!isGrounded && rb.velocity.y < 0)
         {
-            rb.gravityScale = 4.2f; // Düşüş sırasında yerçekimi kuvvetini artır (normal değerin üzerinde)
+            rb.gravityScale = 10f; // Düşüş sırasında yerçekimi kuvvetini artır (normal değerin üzerinde)
         }
 
         animator.SetFloat("speed", Mathf.Abs(rb.velocity.x));
@@ -159,6 +163,7 @@ public class CharacterMovementScript : MonoBehaviour
 
     private void Flip()
     {
+        Debug.Log("flip");
         isFacingRight = !isFacingRight;
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
@@ -171,20 +176,10 @@ public class CharacterMovementScript : MonoBehaviour
     {
         if (context.performed && isGrounded && isReadyToJump && !animator.GetBool("isJumping"))
         {
-            //rb.velocity = new Vector2(rb.velocity.x, jumpPower );
-            //animator.SetBool("isJumping", true);
-            //isReadyToJump = false;
-            //lastJumpTime = Time.time;
-            //rb.gravityScale = 3f;
-
-
-
             animator.SetBool("isJumping", true);
 
-            // Yatay hareketi koruyarak dikey yönde bir kuvvet uygula
             rb.AddForce(new Vector2(0f, jumpPower), ForceMode2D.Impulse);
 
-            // Sonraki zıplama için hazır olma durumunu sıfırla ve son zıplama zamanını kaydet
             isReadyToJump = false;
             lastJumpTime = Time.time;
 
@@ -193,7 +188,5 @@ public class CharacterMovementScript : MonoBehaviour
 
 
         }
-
-
     }
 }
