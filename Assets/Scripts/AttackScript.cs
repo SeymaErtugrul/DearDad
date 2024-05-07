@@ -44,10 +44,7 @@ public class AttackScript : MonoBehaviour
         }
 
         previousAttackInput = AttackInput; // Saldırı girişini güncelle
-
     }
-
-
 
     IEnumerator Attack()
     {
@@ -63,10 +60,11 @@ public class AttackScript : MonoBehaviour
 
         }
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         charAnim.SetBool("isAttackingLeft", false);
         charAnim.SetBool("isAttackingRight", false);
         gameObject.GetComponent<CharacterMovementScript>().moveSpeed = 19f;
+        yield return new WaitForSeconds(1f);
         charAnim.SetLayerWeight(1, 0f);
         charAnim.SetBool("isAttacking", false);
         isAttacking = false;

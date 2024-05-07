@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
-  m_Name: Baba_SkeletonData
+  m_Name: DD_kurt_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: 459d4ed6a20d2ca4eaf20d2259d13d24, type: 2}
+  - {fileID: 11400000, guid: 572dcdf4fe5c69d4786f86c42b868068, type: 2}
   scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: da4c5e8eabfec1b44a997545cbb5d0c7, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: 58abe9a07f6c6504eaca1f9ae87e1ea9, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
@@ -28,4 +28,4 @@ MonoBehaviour:
   toAnimation: []
   duration: []
   defaultMix: 0.2
-  controller: {fileID: 9100000, guid: b0d331b475a6def45b1b7cd3fb698038, type: 2}
+  controller: {fileID: 9100000, guid: 9ae4710424f72e74fbec07931d0babbb, type: 2}
