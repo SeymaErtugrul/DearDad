@@ -1734,6 +1734,7 @@ MonoBehaviour:
   groundCheckRight: {fileID: 1650744631}
   groundedRight: 0
   groundedLeft: 0
+  isRunning: 0
 --- !u!114 &154580645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1748,7 +1749,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charAnim: {fileID: 154580637}
   isAttacking: 0
-  isRapidAttack: 0
+  canAttackAgain: 1
+  canMove: 0
 --- !u!114 &154580646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3930,6 +3932,7 @@ MonoBehaviour:
   groundCheckRight: {fileID: 1488104969}
   groundedRight: 0
   groundedLeft: 0
+  isRunning: 0
 --- !u!114 &380965615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4105,7 +4108,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charAnim: {fileID: 380965616}
   isAttacking: 0
-  isRapidAttack: 0
+  canAttackAgain: 1
+  canMove: 0
 --- !u!1 &382909930
 GameObject:
   m_ObjectHideFlags: 0
@@ -4550,6 +4554,7 @@ MonoBehaviour:
   groundCheckRight: {fileID: 0}
   groundedRight: 0
   groundedLeft: 0
+  isRunning: 0
 --- !u!114 &428353613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17060,6 +17065,7 @@ MonoBehaviour:
   groundCheckRight: {fileID: 0}
   groundedRight: 0
   groundedLeft: 0
+  isRunning: 0
 --- !u!114 &1862317845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18262,8 +18268,8 @@ MonoBehaviour:
   translator:
     autoReset: 1
     useCustomMixMode: 1
-    layerMixModes: 010000000100000000000000
-    layerBlendModes: 010000000200000002000000
+    layerMixModes: 01000000010000000000000001000000
+    layerBlendModes: 01000000020000000200000002000000
 --- !u!95 &1959821750
 Animator:
   serializedVersion: 4
@@ -18444,6 +18450,7 @@ MonoBehaviour:
   groundCheckRight: {fileID: 597348311}
   groundedRight: 0
   groundedLeft: 0
+  isRunning: 0
 --- !u!114 &1959821756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18458,7 +18465,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charAnim: {fileID: 1959821750}
   isAttacking: 0
-  isRapidAttack: 0
+  canAttackAgain: 1
+  canMove: 1
 --- !u!1 &1960742533
 GameObject:
   m_ObjectHideFlags: 0

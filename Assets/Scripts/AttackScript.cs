@@ -1,76 +1,168 @@
 ﻿using Spine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Rendering;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class AttackScript : MonoBehaviour
 {
-
     public Animator charAnim;
     private Vector2 AttackInput;
     private PlayerInput playerInput;
     Rigidbody2D rb;
 
     public bool isAttacking = false;
-    public bool isRapidAttack = false; // Rapid attack tracking
-    private float lastAttackTime = 0.0f; // Zamanı saklamak için değişken
-    private float attackThreshold = 0.6f; // İzin verilen maksimum zaman aralığı
 
-    private Vector2 previousAttackInput = Vector2.zero;
+    public bool canAttackAgain = true;
 
+    public bool canMove = true;
+
+
+    public bool comboAttack = false;
+
+    public bool doubleAttacking = false;
+
+    public bool isCanceled;
+    //private void Awake()
+    //{
+    //    rb = GetComponent<Rigidbody2D>();
+    //    playerInput = GetComponent<PlayerInput>();
+    //}
+    //private void Update()
+    //{
+    //    AttackInput = playerInput.actions["Attack"].ReadValue<Vector2>();
+    //    playerInput = GetComponent<PlayerInput>();
+    //    var attackAction = playerInput.actions["Attack"];
+
+    //    attackAction.performed += OnAttackPerformed; // Tuşa basıldığında tetiklenir.
+    //    attackAction.canceled += OnAttackCanceled; // Tuş bırakıldığında tetiklenir.
+    //    if (AttackInput != Vector2.zero)
+    //    {
+
+    //         if (!isAttacking && canAttackAgain && !doubleAttacking)
+    //        {
+    //            canAttackAgain = false;
+    //            isAttacking = true;
+    //            StartCoroutine("Attack");
+    //        }
+
+    //        if (isAttacking && comboAttack && isCanceled)
+    //        {
+    //            StartCoroutine("doubleAttack");
+    //        }
+
+    //    }
+
+    //}
     private void Awake()
     {
-      rb=GetComponent<Rigidbody2D>();
-      playerInput = GetComponent<PlayerInput>();
+        rb = GetComponent<Rigidbody2D>();
+        playerInput = GetComponent<PlayerInput>();
+
+        var attackAction = playerInput.actions["Attack"];
+        attackAction.performed += OnAttackPerformed; // Tuşa basıldığında tetiklenir.
+        attackAction.canceled += OnAttackCanceled; // Tuş bırakıldığında tetiklenir.
     }
-    private void Update()
+
+    private void OnDestroy()
     {
-        AttackInput = playerInput.actions["Attack"].ReadValue<Vector2>();
+        var attackAction = playerInput.actions["Attack"];
+        attackAction.performed -= OnAttackPerformed;
+        attackAction.canceled -= OnAttackCanceled;
+    }
 
-        if (AttackInput != Vector2.zero && previousAttackInput == Vector2.zero)
+    private void OnAttackPerformed(InputAction.CallbackContext context)
+    {
+        if (!isAttacking && canAttackAgain && !doubleAttacking)
         {
-            if (Time.time - lastAttackTime <= attackThreshold && lastAttackTime != 0)
-            {
-                isRapidAttack = true; // Saldırılar arasındaki süre yeterince kısa ise, hızlı saldırı modunu aktif et
-                charAnim.SetBool("isRapidAttack", true);
-            }
-
-            if (!isAttacking)
-            {
-                isAttacking = true;
-                StartCoroutine("Attack");
-            }
-            lastAttackTime = Time.time; // Son saldırı zamanını güncelle
+            canAttackAgain = false;
+            isAttacking = true;
+            StartCoroutine("Attack");
         }
 
-        previousAttackInput = AttackInput; // Saldırı girişini güncelle
+        if (isAttacking && comboAttack && isCanceled)
+        {
+            StartCoroutine("doubleAttack");
+        }
+
+        isCanceled = false; // Her başarılı atakta, iptal durumunu sıfırla
     }
 
+    private void OnAttackCanceled(InputAction.CallbackContext context)
+    {
+        isCanceled = true;
+    }
+  
     IEnumerator Attack()
     {
+        if (!gameObject.GetComponent<CharacterMovementScript>().isRunning)
+        {
+            canMove = false;
+
+        }
         if (isAttacking)
         {
             charAnim.SetBool("isAttackingRight", true);
-
             charAnim.SetLayerWeight(1, 1f);
             gameObject.GetComponent<CharacterMovementScript>().moveSpeed = 5f;
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.267f);
+            charAnim.SetBool("canAttackEnd", true);
             gameObject.GetComponent<CharacterMovementScript>().moveSpeed = 0f;
-  
+            comboAttack = true;
+        }
+
+        if (!gameObject.GetComponent<CharacterMovementScript>().isRunning)
+        {
+            yield return new WaitForSeconds(0.4f);
+            canMove = true;
 
         }
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
+
         charAnim.SetBool("isAttackingLeft", false);
         charAnim.SetBool("isAttackingRight", false);
-        gameObject.GetComponent<CharacterMovementScript>().moveSpeed = 19f;
-        yield return new WaitForSeconds(1f);
-        charAnim.SetLayerWeight(1, 0f);
+
         charAnim.SetBool("isAttacking", false);
-        isAttacking = false;
-        isRapidAttack = false;
-        charAnim.SetBool("isRapidAttack", false);
+        gameObject.GetComponent<CharacterMovementScript>().moveSpeed = 19f;
+        charAnim.SetLayerWeight(1, 0f);
+
+        yield return new WaitForSeconds(0.2f);
+        //isAttacking = false;
+        //canAttackAgain = true;
+
+        // Eğer saldırı sırasında yeni bir girdi alındıysa doubleAttack coroutine'ini başlat
+
+        comboAttack = false;
+
+          
+            isAttacking = false;
+            canAttackAgain = true;
+            canMove = true;
+
+
+    }
+
+
+    IEnumerator doubleAttack()
+    {
+        doubleAttacking = true;
+        charAnim.SetBool("isRapidAttack", true);
+        charAnim.SetLayerWeight(3, 1f);
+
+
         yield return new WaitForSeconds(0.3f);
+        if (gameObject.GetComponent<CharacterMovementScript>().isRunning)
+        {
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        charAnim.SetLayerWeight(3, 0f);
+        charAnim.SetBool("isRapidAttack", false);
+        doubleAttacking = false;
 
     }
 

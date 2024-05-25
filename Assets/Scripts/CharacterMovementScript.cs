@@ -47,12 +47,15 @@ public class CharacterMovementScript : MonoBehaviour
 
     public bool groundedLeft;
 
+    public bool isRunning;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         playerInput = GetComponent<PlayerInput>();
         lastJumpTime = -jumpCooldown;
         animator.SetBool("isRunning", false);
+        isRunning = false;
         StartCoroutine(EnableInputProcessingAfterDelay(0.1f));
     }
 
@@ -89,17 +92,38 @@ public class CharacterMovementScript : MonoBehaviour
         if (Time.time - lastMoveTime < runningThreshold)
         {
             animator.SetBool("isRunning", true);
+            isRunning = true;
         }
         else
         {
             animator.SetBool("isRunning", false);
+            isRunning = false;
         }
     }
 
     private void FixedUpdate()
     {
+
+        float moveDirection = moveInput.x;
+
+        if (!gameObject.GetComponent<AttackScript>().canMove)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y); // Hareket engellendiyse, yatay hızı sıfırlayın
+            return;
+        }
+
+        if (gameObject.GetComponent<AttackScript>().isAttacking)
+        {
+            // If attacking, prevent movement in the opposite direction
+            if ((moveDirection > 0 && !isFacingRight) || (moveDirection < 0 && isFacingRight))
+            {
+                moveDirection = 0;
+            }
+
+        }
+
         Vector2 movement = moveInput * moveSpeed;
-        rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(moveDirection * moveSpeed, rb.velocity.y);
         Debug.Log(jumpInput);
         Debug.Log("rb velocity"+rb.velocity);
        groundedLeft = Physics2D.OverlapCircle(groundCheckLeft.position, groundCheckRadius, groundLayer);
@@ -109,10 +133,12 @@ public class CharacterMovementScript : MonoBehaviour
         if (moveInput == Vector2.zero || rb.velocity.magnitude < 0.01f)
         {
             animator.SetBool("isRunning", false);
+            isRunning = false;
         }
         else
         {
             animator.SetBool("isRunning", true);
+            isRunning = true ;
         }
 
         if (moveInput.x > 0 && !isFacingRight)
@@ -132,6 +158,7 @@ public class CharacterMovementScript : MonoBehaviour
             animator.SetBool("isTop", false);
             rb.gravityScale = 1f;
             moveSpeed = 19;
+            jumpPower = 33;
             int sideJumpLayerIndex = animator.GetLayerIndex("SideJump");
             animator.SetLayerWeight(sideJumpLayerIndex, 0f);
         }
@@ -162,12 +189,16 @@ public class CharacterMovementScript : MonoBehaviour
     }
 
     private void Flip()
-    {
-        Debug.Log("flip");
-        isFacingRight = !isFacingRight;
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+    { 
+        if (!gameObject.GetComponent<AttackScript>().isAttacking) 
+        {
+            Debug.Log("flip");
+            isFacingRight = !isFacingRight;
+            Vector3 theScale = transform.localScale;
+            theScale.x *= -1;
+            transform.localScale = theScale;
+
+        }
 
 
     }
@@ -177,21 +208,33 @@ public class CharacterMovementScript : MonoBehaviour
         if (context.performed && isGrounded && isReadyToJump && !animator.GetBool("isJumping"))
         {
             animator.SetBool("isJumping", true);
-            rb.AddForce(new Vector2(0f, jumpPower), ForceMode2D.Impulse);
+
 
 
             if (isMoving)
             {
+             
+                jumpPower = 26;
+                rb.AddForce(new Vector2(0f, jumpPower), ForceMode2D.Impulse);
                 int sideJumpLayerIndex = animator.GetLayerIndex("SideJump");
                 animator.SetLayerWeight(sideJumpLayerIndex, 1f);
+                moveSpeed = 22;
+                rb.gravityScale = 2.7f;
             }
+
+            else
+            {
+                rb.AddForce(new Vector2(0f, jumpPower), ForceMode2D.Impulse);
+                rb.gravityScale = 3f;
+                moveSpeed = 8;
+            }
+
 
 
             isReadyToJump = false;
             lastJumpTime = Time.time;
 
-            rb.gravityScale = 3f;
-            moveSpeed = 8;
+
         }
     }
 }
