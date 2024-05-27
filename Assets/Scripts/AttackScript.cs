@@ -2,9 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class AttackScript : MonoBehaviour
@@ -131,17 +128,12 @@ public class AttackScript : MonoBehaviour
         charAnim.SetLayerWeight(1, 0f);
 
         yield return new WaitForSeconds(0.2f);
-        //isAttacking = false;
-        //canAttackAgain = true;
-
-        // Eğer saldırı sırasında yeni bir girdi alındıysa doubleAttack coroutine'ini başlat
-
         comboAttack = false;
 
-          
-            isAttacking = false;
-            canAttackAgain = true;
-            canMove = true;
+
+        isAttacking = false;
+        canAttackAgain = true;
+        canMove = true;
 
 
     }
@@ -152,10 +144,9 @@ public class AttackScript : MonoBehaviour
         doubleAttacking = true;
         charAnim.SetBool("isRapidAttack", true);
         charAnim.SetLayerWeight(3, 1f);
+        yield return new WaitForSeconds(0.267f);
 
-
-        yield return new WaitForSeconds(0.3f);
-        if (gameObject.GetComponent<CharacterMovementScript>().isRunning)
+        if (!gameObject.GetComponent<CharacterMovementScript>().isRunning)
         {
             yield return new WaitForSeconds(0.2f);
         }
@@ -165,5 +156,42 @@ public class AttackScript : MonoBehaviour
         doubleAttacking = false;
 
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        //if (collision.gameObject.name=="wolf"&& isAttacking || collision.gameObject.name == "wolf" && doubleAttacking)
+        //{
+        //    Debug.Log("rffşl1");
+
+        //    collision.gameObject.GetComponent<WolfMovementScript>().wolfHealth = collision.gameObject.GetComponent<WolfMovementScript>().wolfHealth - 5;
+        //    collision.gameObject.GetComponent<WolfMovementScript>().healthSlider.value = collision.gameObject.GetComponent<WolfMovementScript>().wolfHealth;
+        //}
+
+        if ((collision.gameObject.name == "wolf" && isAttacking) || (collision.gameObject.name == "wolf" && doubleAttacking))
+        {
+            Debug.Log("Hit wolf");
+
+            // Wolf sağlık azaltma
+            var wolfMovement = collision.gameObject.GetComponent<WolfMovementScript>();
+            wolfMovement.wolfHealth -= 5;
+            wolfMovement.healthSlider.value = wolfMovement.wolfHealth;
+
+            // Vuruş kuvveti uygulama
+            Rigidbody2D wolfRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            if (wolfRb != null)
+            {
+                Vector2 knockbackDirection = (collision.transform.position - transform.position).normalized;
+                float knockbackForce = 50f;  // Kuvvet miktarını azalttık
+                wolfRb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+                StartCoroutine(ResetWolfVelocity(wolfRb, 0.2f));  // 0.2 saniye sonra hızı sıfırla
+            }
+        }
+    }
+    IEnumerator ResetWolfVelocity(Rigidbody2D wolfRb, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        wolfRb.velocity = Vector2.zero;  // Hızı sıfırla
+    }
+
 
 }

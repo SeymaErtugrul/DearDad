@@ -125,7 +125,7 @@ public class CharacterMovementScript : MonoBehaviour
         Vector2 movement = moveInput * moveSpeed;
         rb.velocity = new Vector2(moveDirection * moveSpeed, rb.velocity.y);
         Debug.Log(jumpInput);
-        Debug.Log("rb velocity"+rb.velocity);
+
        groundedLeft = Physics2D.OverlapCircle(groundCheckLeft.position, groundCheckRadius, groundLayer);
        groundedRight = Physics2D.OverlapCircle(groundCheckRight.position, groundCheckRadius, groundLayer);
         isGrounded= Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -171,7 +171,6 @@ public class CharacterMovementScript : MonoBehaviour
 
          if (isAscending && rb.velocity.y <= 20)
         {
-            Debug.Log("Zirveye ulaşıldı.");
             isAscending = false; 
             animator.SetBool("isGrounded", false);
             animator.SetBool("isTop", true);

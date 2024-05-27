@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WolfMovementScript : MonoBehaviour
 {
@@ -14,16 +15,24 @@ public class WolfMovementScript : MonoBehaviour
     private Transform target;
     private int currentWaypoint = 0;
     private float chaseTimer;
+    public int wolfHealth = 100;
+    public Slider healthSlider;  // Editor üzerinden bağlanacak
+    public float currentHealth;
 
     void Start()
     {
         target = GameObject.FindGameObjectWithTag("Player").transform;
+
+        currentHealth = wolfHealth;  // Başlangıç sağlığını maksimum yap
+        healthSlider.maxValue = wolfHealth;
+        healthSlider.value = currentHealth;
     }
 
     void Update()
     {
         float distance = Vector3.Distance(transform.position, target.position);
 
+        Debug.Log(wolfHealth);
         if (distance < detectionDistance)
         {
             Chase();
@@ -55,7 +64,7 @@ public class WolfMovementScript : MonoBehaviour
     {
         Vector3 direction = (target.position - transform.position).normalized;
         transform.position += direction * chaseSpeed * Time.deltaTime;
-
+        Debug.Log("chasing");
         chaseTimer += Time.deltaTime;
         if (chaseTimer >= chaseWaitTime)
         {
